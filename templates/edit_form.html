@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block meta %}
+    <meta name="description" content="Descrição padrão do site">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/edit_form.css') }}">
+    <script src="{{ url_for('static', filename='js/create_form.js')}}" defer></script>
+    <script src="{{ url_for('static', filename='js/edit_form.js')}}" defer></script>
+    <title>Editar formulário</title>
+{% endblock %}
+
+{% block content %}
+
+    <h1>Editar formulário</h1>
+
+      <form action="{{ url_for('edit_form', form_id=form.id) }}" method="POST" id="creation-form">
+
+        <div class="form-header">
+            <input class="title" type="text" name="title" id="title" maxlength="200" value="{{ form_data['title'] }}" required>
+            <hr>
+            <textarea class="description" name="description" id="description" placeholder="Descrição do formulário">{{ form.description }}</textarea>
+        </div>
+
+        <div id="questions">
+
+        </div>
+
+        <div class="div-btns">
+            <button class="btn-style" type="button" onclick="addQuestion()">Adicionar Pergunta</button>
+            <button class="btn-style" type="submit">Salvar Formulário</button>
+        </div>
+
+    </form>
+
+    <script id="form-data" type="application/json">
+        {{ form_data | tojson }}
+    </script>
+
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block meta %}
+    <meta name="description" content="Descrição padrão do site">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/create_form.css') }}">
+    <script src="{{ url_for('static', filename='js/create_form.js')}}" defer></script>
+    <title>Criar formulário</title>
+{% endblock %}
+
+{% block content %}
+
+    <form action="{{ url_for('create_form') }}" method="POST" id="creation-form">
+
+        <div class="form-header">
+            <input class="title" type="text" name="title" id="title" maxlength="200" value="Formulário sem título" required>
+            <hr>
+            <textarea class="description" name="description" id="description" placeholder="Descrição do formulário"></textarea>
+        </div>
+
+        <div id="questions">
+
+            <div class="question">
+                <div class="quest-types">
+                    <input class="question-text" type="text" name="quest" placeholder="Pergunta" required>
+
+                    <select name="type" class="question_type" required>
+                        <option value="short_answer">Resposta Curta</option>
+                        <option value="long_answer">Resposta Longa</option>
+                        <option value="multiple_choice">Múltipla Escolha</option>
+                        <option value="checkbox">Caixa de Seleção</option>
+                    </select>
+                </div>
+
+                <div class="options">
+                    <input class="inputs" type="text" name="opcao" maxlength="200" value="Texto de resposta curta" disabled>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="div-btns">
+            <button class="btn-style" type="button" onclick="addQuestion()">Adicionar Pergunta</button>
+            <button class="btn-style" type="submit">Salvar Formulário</button>
+        </div>
+
+    </form>
+
+{% endblock %}

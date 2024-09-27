@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block meta %}
+    <meta name="description" content="Descrição padrão do site">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+    <title>Início</title>
+{% endblock %}
+
+{% block content %}
+
+    <section class="section-1">
+        <div class="teste">
+            <div class="text-1">
+
+                <h2 class="home-phrase">Bem-vindo! Venha ser você também FORMidável!</h2>
+                <p class="sub-title">Crie formulários simples e fáceis de usar, como você já fez com outros sites.</p>
+                <div class="btns-place">
+                    <a href="{{ url_for('create_form') }}"><button class="btn-style btn-criar">Criar Formulário</button></a>
+                    <a href="{{ url_for('all_forms') }}"><button class="btn-style ">Ver formulários</button></a>  
+                </div>
+               
+            </div>
+            <img src="{{ url_for('static', filename='img/form-1.jpg') }}" alt="Imagem de exemplo">
+            
+        </div>
+    </section>
+
+{% endblock %}

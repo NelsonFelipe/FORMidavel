@@ -1,0 +1,23 @@
+
+{% block meta %}
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
+
+{% endblock meta %}
+
+
+<header>
+
+    <nav class="nav-bar">
+
+        <div class="logo">
+            <h2><span class="logo-form">FORM</span>idável</h2>
+        </div>
+        <div class="menu">
+            <a href="{{ url_for('home') }}">Home</a>
+
+        </div>
+    
+    </nav>
+
+</header>
