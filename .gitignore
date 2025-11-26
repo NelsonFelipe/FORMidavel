@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Env
+.venv
+venv/
+env/
+
+# Logs
+*.log
+
+# Database
+*.db
+*.sqlite3
+
+# Flask
+instance/*
+!instance/.keep
+.webassets-cache
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+cypress/videos
+cypress/screenshots
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
