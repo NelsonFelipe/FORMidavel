@@ -1,0 +1,10 @@
+{
+  "name": "FORMidavel",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/NelsonFelipe/FORMidavel.git",
+  "license": "MIT",
+  "devDependencies": {
+    "cypress": "^15.7.0"
+  }
+}
