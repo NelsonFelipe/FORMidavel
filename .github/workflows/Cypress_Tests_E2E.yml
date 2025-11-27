@@ -1,0 +1,39 @@
+name: Cypress Tests E2E
+
+on:
+  push:
+    branches: [ main, develop]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          pip install -r requirements.txt
+          npm ci 
+      
+      - name: Cypress Run
+        uses: cypress-io/github-action@v6
+        with:
+          start: python run_test.py
+
+          wait-on: 'http://127.0.0.1:5001' 
+
+          wait-on-timeout: 120
+        
+        env:
+          FLASK_ENV: testing
+          FLASK_DEBUG: 1
