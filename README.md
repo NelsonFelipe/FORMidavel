@@ -162,9 +162,3 @@ FORMidável/
 ## 📄 Licença
 
 Este projeto está sob a licença MIT. Sinta-se livre para usá-lo e modificá-lo para fins de aprendizado.
-
----
-
-<p align="center">
-  Desenvolvido com 💙 por Nelson para a disciplina de Web da UFC.
-</p>
