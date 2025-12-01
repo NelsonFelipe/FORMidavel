@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", sans-serif;
+
+  /* Cores Brand - Sintaxe Plana */
+  --color-brand: #5afd54;
+  --color-brand-hover: #409444;
+
+  /* Cores Dark Mode - Sintaxe Plana */
+  --color-dark-bg: #0f172a;
+  --color-dark-card: #1e293b;
+  --color-dark-text: #f1f5f9;
+  --color-dark-border: #334155;
+}
+
+/* Configuração Robusta para Dark Mode via Classe */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Garantir a fonte global */
+body {
+  font-family: "Inter", sans-serif;
+}

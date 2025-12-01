@@ -10,27 +10,35 @@ describe('Answering Forms', () => {
   });
 
   it('CT35: Should prevent submission if required short answer is empty', () => {
-    cy.navigateToFormToAnswer('Formulário Cypress', formId);
-    cy.get('[data-testid="submit-answer-btn"]').click();
-    cy.contains('Sucesso!').should('not.exist'); // Verify success page is NOT shown
+    cy.visit(`/form/${formId}`);
+    cy.get('[data-testid="submit-answer-btn"]')
+      .click();
+    cy.contains('Sucesso!')
+      .should('not.exist'); // Verify success page is NOT shown
   });
 
   it('CT34: Should submit a response successfully (happy path)', () => {
-    cy.navigateToFormToAnswer('Formulário Cypress', formId);
-    cy.get('input[placeholder="Sua resposta"]').type('Resposta Válida');
-    cy.get('[data-testid="submit-answer-btn"]').click();
+    cy.visit(`/form/${formId}`);
+    cy.get('[data-testid^="short-answer-input-"]')
+      .type('Resposta Válida');
+    cy.get('[data-testid="submit-answer-btn"]')
+      .click();
     
-    cy.contains('Sucesso!').should('be.visible');
-    cy.contains('Voltar para Meus Formulários').click();
-    cy.contains('1 Resposta(s)').should('be.visible'); // Verify badge on dashboard
+    cy.contains('Sucesso!')
+      .should('be.visible');
+    cy.contains('Voltar para Meus Formulários')
+      .click();
+    cy.contains('1 Resp.')
+      .should('be.visible'); // Verify badge on dashboard
   });
 
   it('CT31: Should handle non-existent form ID gracefully (404)', () => {
-    cy.request({url: '/form/999999', failOnStatusCode: false}).its('status').should('equal', 404);
+    cy.visit('/form/999999', { failOnStatusCode: false });
+    cy.contains('Formulário não encontrado').should('be.visible');
   });
 
   it('CT36: Should validate required selection for multiple choice', () => {
-    cy.visit('/create_form');
+    cy.visit('/create');
     cy.get('[data-testid="form-title-input"]').type('Formulário Validação MC');
     cy.get('[data-testid="form-desc-input"]').type('Teste');
     
@@ -42,10 +50,15 @@ describe('Answering Forms', () => {
     cy.get('[data-testid="option-input-text"]').last().type('Opção 2');
 
     cy.get('[data-testid="save-form-btn"]').click();
-    
-    cy.contains('Formulário Validação MC').parents('[data-testid^="form-card-"]').within(() => {
-        cy.get('[data-testid^="respond-btn-"]').click();
-    });
+    cy.url().should('include', '/forms'); // Confirm navigation to forms list
+
+    cy.contains('Formulário Validação MC')
+        .parents('[data-testid^="form-card-"]')
+        .invoke('attr', 'data-testid')
+        .then((testid) => {
+            const formId = testid.split('-')[2];
+            cy.visit(`/form/${formId}`); // Navigate directly to the form answering page
+        });
 
     // Try to submit empty
     cy.get('[data-testid="submit-answer-btn"]').click();
@@ -56,7 +69,7 @@ describe('Answering Forms', () => {
   });
 
   it('CT37: Should validate required selection for checkbox', () => {
-    cy.visit('/create_form');
+    cy.visit('/create');
     cy.get('[data-testid="form-title-input"]').type('Formulário Validação CB');
     cy.get('[data-testid="form-desc-input"]').type('Teste');
 
@@ -68,10 +81,15 @@ describe('Answering Forms', () => {
     cy.get('[data-testid="option-input-text"]').last().type('Check 2');
 
     cy.get('[data-testid="save-form-btn"]').click();
-    
-    cy.contains('Formulário Validação CB').parents('[data-testid^="form-card-"]').within(() => {
-        cy.get('[data-testid^="respond-btn-"]').click();
-    });
+    cy.url().should('include', '/forms'); // Confirm navigation to forms list
+
+    cy.contains('Formulário Validação CB')
+        .parents('[data-testid^="form-card-"]')
+        .invoke('attr', 'data-testid')
+        .then((testid) => {
+            const formId = testid.split('-')[2];
+            cy.visit(`/form/${formId}`); // Navigate directly to the form answering page
+        });
 
     // Try to submit empty
     cy.get('[data-testid="submit-answer-btn"]').click();
@@ -82,7 +100,7 @@ describe('Answering Forms', () => {
   });
 
   it('CT38: Should submit multiple checkbox options', () => {
-     cy.visit('/create_form');
+     cy.visit('/create');
      cy.get('[data-testid="form-title-input"]').type('Form Checkbox Multiple');
      cy.get('[data-testid="form-desc-input"]').type('DB Check');
      
@@ -94,16 +112,17 @@ describe('Answering Forms', () => {
      cy.get('[data-testid="option-input-text"]').last().type('Banana'); // Option 1
      
      cy.get('[data-testid="save-form-btn"]').click();
+     cy.url().should('include', '/forms'); // Confirm navigation
      
      cy.contains('Form Checkbox Multiple')
         .parents('[data-testid^="form-card-"]')
         .invoke('attr', 'data-testid')
         .then((testid) => {
            const formId = testid.split('-')[2];
-           cy.navigateToFormToAnswer('Form Checkbox Multiple', formId);
+           cy.visit(`/form/${formId}`); // Navigate directly
            
            // Select both options
-           cy.get('input[type="checkbox"]').check(); 
+           cy.get('[data-testid^="checkbox-option-input-"]').check(); 
            
            cy.get('[data-testid="submit-answer-btn"]').click();
            cy.contains('Sucesso!').should('be.visible');
@@ -116,8 +135,8 @@ describe('Answering Forms', () => {
       // Let's do a quick flow here.
       
       cy.seedForm().then((formId) => {
-          cy.navigateToFormToAnswer('Formulário Cypress', formId);
-          cy.get('input[placeholder="Sua resposta"]').type('Resposta DB Link');
+          cy.visit(`/form/${formId}`);
+          cy.get('[data-testid^="short-answer-input-"]').type('Resposta DB Link');
           cy.get('[data-testid="submit-answer-btn"]').click();
           
           cy.getLastSubmission(formId).then((submission) => {
@@ -130,7 +149,7 @@ describe('Answering Forms', () => {
 
   it('CT46: Should verify selectedOption saves correct option IDs', () => {
      // Create Checkbox form
-     cy.visit('/create_form');
+     cy.visit('/create');
      cy.get('[data-testid="form-title-input"]').type('Form Options DB');
      cy.get('[data-testid="form-desc-input"]').type('DB Check');
      
@@ -141,16 +160,17 @@ describe('Answering Forms', () => {
      cy.get('[data-testid="option-input-text"]').last().type('OptB');
      
      cy.get('[data-testid="save-form-btn"]').click();
+     cy.url().should('include', '/forms'); // Confirm navigation
      
      cy.contains('Form Options DB')
         .parents('[data-testid^="form-card-"]')
         .invoke('attr', 'data-testid')
         .then((testid) => {
            const formId = testid.split('-')[2];
-           cy.navigateToFormToAnswer('Form Options DB', formId);
+           cy.visit(`/form/${formId}`); // Navigate directly
            
            // Select both
-           cy.get('input[type="checkbox"]').check(); 
+           cy.get('[data-testid^="checkbox-option-input-"]').check(); 
            cy.get('[data-testid="submit-answer-btn"]').click();
            
            cy.getLastSubmission(formId).then((submission) => {
@@ -162,8 +182,8 @@ describe('Answering Forms', () => {
   });
 
   it('CT42: Should allow submitting another response', () => {
-    cy.navigateToFormToAnswer('Formulário Cypress', formId);
-    cy.get('input[placeholder="Sua resposta"]').type('Resposta 1');
+    cy.visit(`/form/${formId}`);
+    cy.get('[data-testid^="short-answer-input-"]').type('Resposta 1');
     cy.get('[data-testid="submit-answer-btn"]').click();
     
     cy.contains('Sucesso!').should('be.visible');
@@ -171,7 +191,7 @@ describe('Answering Forms', () => {
     cy.contains('Enviar outra resposta').click();
     
     // Should be back at form
-    cy.get('input[placeholder="Sua resposta"]').should('be.visible');
-    cy.get('input[placeholder="Sua resposta"]').should('have.value', '');
+    cy.get('[data-testid^="short-answer-input-"]').should('be.visible');
+    cy.get('[data-testid^="short-answer-input-"]').should('have.value', '');
   });
 });

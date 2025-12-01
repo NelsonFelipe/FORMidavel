@@ -8,21 +8,21 @@
 // https://on.cypress.io/custom-commands
 // ***********************************************
 
-// -- Database Commands --
+// Database Commands
 
 // Resets the database
 Cypress.Commands.add('resetDb', () => {
-  cy.request('POST', '/test/reset_db');
+  cy.request('POST', 'http://localhost:5001/test/reset_db');
 });
 
 // Seeds a test form via API and returns the ID
 Cypress.Commands.add('seedForm', () => {
-  return cy.request('POST', '/test/seed_form').then((response) => {
+  return cy.request('POST', 'http://localhost:5001/test/seed_form').then((response) => {
     return response.body.id; // Returns the ID to be used in .then()
   });
 });
 
-// -- Navigation Commands --
+// Navigation Commands
 
 // Navigates to the form response page via Dashboard
 Cypress.Commands.add('navigateToFormToAnswer', (formTitle, formId) => {
@@ -38,10 +38,10 @@ Cypress.Commands.add('navigateToFormToAnswer', (formTitle, formId) => {
     });
 });
 
-// -- Verification Commands --
+// Verification Commands
 
 Cypress.Commands.add('getLastSubmission', (formId) => {
-  return cy.request(`GET`, `/test/get_submission_data/${formId}`).then((response) => {
+  return cy.request('GET', `http://localhost:5001/test/get_submission_data/${formId}`).then((response) => {
     return response.body;
   });
 });

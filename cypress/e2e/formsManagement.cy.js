@@ -7,96 +7,140 @@ describe('Form Management', () => {
 
   context('Form list', () => {
     it('CT23: Should display empty state when no forms exist', () => {
+
       cy.visit('/forms');
-      cy.contains('Nenhum formulário criado').should('be.visible');
-      cy.contains('Criar meu primeiro formulário').should('be.visible');
+
+      cy.get('[data-testid="empty-state-title"]')
+        .should('contain', 'Nenhum formulário criado');
+      cy.get('[data-testid="empty-state-create-button"]')
+        .should('be.visible');
     });
 
     it('CT24: Should list created forms', () => {
       cy.seedForm();
+
       cy.visit('/forms');
-      cy.get('[data-testid="forms-grid"]').should('exist');
-      cy.contains('Formulário Cypress').should('be.visible');
-      cy.contains('Aguardando respostas').should('be.visible');
+
+      cy.get('[data-testid="forms-grid"]')
+        .should('exist');
+      cy.get('[data-testid="form-card-title"]')
+        .should('contain', 'Formulário Cypress');
+      cy.get('[data-testid="submission-status-badge"]')
+        .should('contain', 'Aguardando respostas');
     });
   });
 
   context('Form Creation', () => {
     beforeEach(() => {
-      cy.visit('/create_form');
+      cy.visit('/create');
     });
 
     it('CT07: Should validate if title is required', () => {
       // Leave Title empty
-      cy.get('[data-testid="form-desc-input"]').type('Descrição válida');
-      cy.get('[data-testid="question-text-input"]').first().type('P1'); // Add a question for valid submission structure
-      cy.get('[data-testid="save-form-btn"]').click();
+      cy.get('[data-testid="form-desc-input"]')
+        .type('Descrição válida');
+      cy.get('[data-testid="question-text-input"]') 
+        .first()
+        .type('P1'); // Add a question for valid submission structure
+      cy.get('[data-testid="save-form-btn"]')
+        .click();
       
       // HTML5 validation prevents submission, URL stays same
-      cy.url().should('include', '/create_form');
+      cy.url()
+        .should('include', '/create');
       // Can check specific validation message if needed, but URL check is robust for "not submitted"
     });
 
     it('CT08: Should validate if description is required', () => {
         // Fill Title, leave Description empty
-        cy.get('[data-testid="form-title-input"]').type('Título Válido');
-        cy.get('[data-testid="question-text-input"]').first().type('P1'); // Add a question
-        cy.get('[data-testid="save-form-btn"]').click();
+        cy.get('[data-testid="form-title-input"]')
+          .type('Título Válido');
+        cy.get('[data-testid="question-text-input"]')
+          .first()
+          .type('P1'); // Add a question
+        cy.get('[data-testid="save-form-btn"]')
+          .click();
         
         // HTML5 validation prevents submission
-        cy.url().should('include', '/create_form');
+        cy.url()
+        .should('include', '/create');
     });
 
     it('CT09: Should accept special characters and emojis in title', () => {
       const tituloExotico = 'Pesquisa 🚀 Verão 2025 & Inverno ñ ç ã';
-      cy.get('[data-testid="form-title-input"]').type(tituloExotico);
-      cy.get('[data-testid="form-desc-input"]').type('Teste de encoding utf-8');
-      cy.get('[data-testid="question-text-input"]').first().type('P1');
+      cy.get('[data-testid="form-title-input"]')
+        .type(tituloExotico);
+      cy.get('[data-testid="form-desc-input"]')
+        .type('Teste de encoding utf-8');
+      cy.get('[data-testid="question-text-input"]')
+        .first()
+        .type('P1');
       
-      cy.get('[data-testid="save-form-btn"]').click();
+      cy.get('[data-testid="save-form-btn"]')
+        .click();
       
       cy.contains('Formulário criado com sucesso!');
-      cy.contains(tituloExotico).should('be.visible');
+      cy.contains(tituloExotico)
+        .should('be.visible');
     });
 
     it('CT05: Should create a complex form with all question types', () => {
-      cy.get('[data-testid="form-title-input"]').type('Formulário Completo');
-      cy.get('[data-testid="form-desc-input"]').type('Testando todos os tipos');
+      cy.get('[data-testid="form-title-input"]')
+        .type('Formulário Completo');
+      cy.get('[data-testid="form-desc-input"]')
+        .type('Testando todos os tipos');
 
       // P1: Short Answer
-      cy.get('[data-testid="question-text-input"]').eq(0).type('Nome Completo');
+      cy.get('[data-testid="question-text-input"]')
+        .eq(0)
+        .type('Nome Completo');
 
       // P2: Long Answer
-      cy.get('[data-testid="add-question-btn"]').click();
-      cy.get('[data-testid="question-item"]').eq(1).within(() => {
-        cy.get('[data-testid="question-text-input"]').type('Deixe seu comentário');
-        cy.get('[data-testid="question-type-select"]').select('long_answer');
-        cy.get('textarea.inputs').should('exist');
-      });
+      cy.get('[data-testid="add-question-btn"]')
+        .click();
+      cy.get('[data-testid="question-item"]')
+        .eq(1)
+        .within(() => {
+          cy.get('[data-testid="question-text-input"]').type('Deixe seu comentário');
+          cy.get('[data-testid="question-type-select"]').select('long_answer');
+          cy.get('[data-testid="long-answer-placeholder"]').should('exist');
+        });
 
       // P3: Multiple Choice
-      cy.get('[data-testid="add-question-btn"]').click();
-      cy.get('[data-testid="question-item"]').eq(2).within(() => {
-        cy.get('[data-testid="question-text-input"]').type('Cor favorita');
-        cy.get('[data-testid="question-type-select"]').select('multiple_choice');
-        
-        // Option 1 (default)
-        cy.get('[data-testid="option-input-text"]').first().type('Azul');
-        
-        // Option 2 (added)
-        cy.get('[data-testid="add-option-btn"]').click();
-        cy.get('[data-testid="option-input-text"]').last().type('Vermelho');
-      });
+      cy.get('[data-testid="add-question-btn"]')
+        .click();
+      cy.get('[data-testid="question-item"]')
+        .eq(2)
+        .within(() => {
+          cy.get('[data-testid="question-text-input"]').type('Cor favorita');
+          cy.get('[data-testid="question-type-select"]').select('multiple_choice');
+          
+          // Option 1 (default)
+          cy.get('[data-testid="option-input-text"]').first().type('Azul');
+          
+          // Option 2 (added)
+          cy.get('[data-testid="add-option-btn"]').click();
+          cy.get('[data-testid="option-input-text"]').last().type('Vermelho');
+        });
 
       // P4: Checkbox
-      cy.get('[data-testid="add-question-btn"]').click();
-      cy.get('[data-testid="question-item"]').eq(3).within(() => {
-        cy.get('[data-testid="question-text-input"]').type('Hobbies');
-        cy.get('[data-testid="question-type-select"]').select('checkbox');
+      cy.get('[data-testid="add-question-btn"]')
+      .click();
+      cy.get('[data-testid="question-item"]')
+      .eq(3).within(() => {
+        cy.get('[data-testid="question-text-input"]')
+          .type('Hobbies');
+        cy.get('[data-testid="question-type-select"]')
+          .select('checkbox');
         
-        cy.get('[data-testid="option-input-text"]').first().type('Leitura');
-        cy.get('[data-testid="add-option-btn"]').click();
-        cy.get('[data-testid="option-input-text"]').last().type('Games');
+        cy.get('[data-testid="option-input-text"]')
+          .first()
+          .type('Leitura');
+        cy.get('[data-testid="add-option-btn"]')
+          .click();
+        cy.get('[data-testid="option-input-text"]')
+          .last()
+          .type('Games');
       });
 
       cy.get('[data-testid="save-form-btn"]').click();
@@ -158,24 +202,23 @@ describe('Form Management', () => {
         
         cy.get('[data-testid="save-form-btn"]').click();
         // HTML5 validation should prevent it
-        cy.url().should('include', '/create_form');
+        cy.url().should('include', '/create');
     });
 
     it('CT14: Trying to create a multiple choice question with only one option.', () => {
         cy.get('[data-testid="form-title-input"]').type('Form Validação');
         cy.get('[data-testid="form-desc-input"]').type('Teste');
         
-        cy.get('[data-testid="question-text-input"]').type('P1');
+        cy.get('[data-testid="question-text-input"]').first().type('P1');
         cy.get('[data-testid="question-type-select"]').select('multiple_choice');
         cy.get('[data-testid="option-input-text"]').first().type('Opção 1');
-        cy.get('[data-testid="question-text-input"]').first().type('P1'); // Need a question for submission
         // Don't add another
         
         cy.get('[data-testid="save-form-btn"]').click();
-        cy.on('window:alert', (str) => {
-             expect(str).to.contain('Adicione pelo menos 2 opções');
-        });
-        cy.url().should('include', '/create_form');
+        
+        // Check for error toast and that we are still on the create page
+        cy.get('.Toastify__toast--error').should('contain', 'Crie pelo menos 2 opções');
+        cy.url().should('include', '/create');
     });
 
     it('CT15: Trying to create a checkbox question with only one option', () => {
@@ -188,7 +231,7 @@ describe('Form Management', () => {
         cy.get('[data-testid="question-text-input"]').first().type('P1'); // Need a question for submission
         
         cy.get('[data-testid="save-form-btn"]').click();
-        cy.url().should('include', '/create_form');
+        cy.url().should('include', '/create');
     });
 
   });
@@ -196,7 +239,7 @@ describe('Form Management', () => {
   context('Form Editing', () => {
     beforeEach(() => {
       cy.seedForm().then((id) => {
-        cy.visit(`/edit_form/${id}`);
+        cy.visit(`/edit/${id}`);
       });
     });
 
@@ -279,7 +322,7 @@ describe('Form Management', () => {
        cy.contains('Formulário atualizado com sucesso!');
     });
 
-    it('CT22: Should prevent removing all questions (if required)', () => {
+    it('CT22: Should prevent removing all questions', () => {
       // Try to delete the only question
       cy.get('[data-testid="delete-question-btn"]').each(($btn) => {
           cy.wrap($btn).click();
@@ -290,12 +333,13 @@ describe('Form Management', () => {
       cy.get('[data-testid="save-form-btn"]').click();
       
       // Expecting an error or staying on page
-      cy.url().should('include', '/edit_form'); 
-      // Or check for specific error message if implemented
+      cy.url().should('include', '/edit'); 
+      cy.contains('O formulário deve ter pelo menos uma pergunta.');
     });
   });
 
   context('Form Deletion', () => {
+    
     it('CT29: Should delete an existing form', () => {
       cy.seedForm();
       cy.visit('/forms');
