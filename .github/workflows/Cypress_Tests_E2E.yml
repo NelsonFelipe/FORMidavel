@@ -2,38 +2,67 @@ name: Cypress Tests E2E
 
 on:
   push:
-    branches: [ main, develop]
+    branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
 
 jobs:
   cypress-run:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # 1. Backend Setup & Execution
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
           cache: 'pip'
-
-      - name: Install Dependencies
-        run: |
-          pip install -r requirements.txt
-          npm ci 
       
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+
+      - name: Start Backend Server
+        run: |
+          cd backend
+          # Run in background (&) to free up the terminal for next steps
+          python run_test.py &
+        env:
+          FLASK_ENV: testing
+
+      # 2. Frontend Setup & Execution
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Start Frontend Server
+        run: |
+          cd frontend
+          # Run the dev script configured for tests (correct port, etc.) in background
+          npm run dev:test &
+
+      # 3. Cypress Execution
       - name: Cypress Run
         uses: cypress-io/github-action@v6
         with:
-          start: python run_test.py
-
-          wait-on: 'http://127.0.0.1:5001' 
-
+          # Define where the Cypress package.json and tests are located
+          working-directory: tests/e2e
+          
+          # Wait for BOTH servers to be ready before starting
+          # 5001 = Backend (run_test.py), 5173 = Frontend (Vite)
+          wait-on: 'http://127.0.0.1:5001, http://127.0.0.1:5173'
           wait-on-timeout: 120
-        
-        env:
-          FLASK_ENV: testing
-          FLASK_DEBUG: 1
+          
+          # Install dependencies located inside tests/e2e/package.json
+          install: true
