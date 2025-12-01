@@ -28,7 +28,6 @@ jobs:
       - name: Start Backend Server
         run: |
           cd backend
-          # Run in background (&)
           python run_test.py &
         env:
           FLASK_ENV: testing
@@ -37,7 +36,6 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          # UPDATE: Cypress 15.7+ requires Node 20 or higher
           node-version: 20
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
@@ -50,7 +48,8 @@ jobs:
       - name: Start Frontend Server
         run: |
           cd frontend
-          npm run dev:test &
+          # FORCE port 5173 and host 127.0.0.1 to ensure wait-on finds it
+          npx vite --mode testing --port 5173 --host 127.0.0.1 &
 
       # 3. Cypress Execution
       - name: Cypress Run
@@ -58,8 +57,7 @@ jobs:
         with:
           working-directory: tests/e2e
           
-          # UPDATE: Changed http://127.0.0.1:5001 to http://127.0.0.1:5001/api/v1/forms
-          # This ensures we wait for a valid endpoint that returns 200 OK, not 404.
+          # Waiting for explicit IPv4 addresses on correct ports
           wait-on: 'http://127.0.0.1:5001/api/v1/forms, http://127.0.0.1:5173'
           wait-on-timeout: 120
           
